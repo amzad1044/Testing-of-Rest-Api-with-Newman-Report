@@ -1,0 +1,2 @@
+newman run Demo_api.postman_collection.json -e Demo_api.postman_environment.json -r cli,htmlextra
+

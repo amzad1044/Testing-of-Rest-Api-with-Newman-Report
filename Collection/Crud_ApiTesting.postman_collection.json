@@ -1,0 +1,386 @@
+{
+	"info": {
+		"_postman_id": "1f954d7a-b2cf-4e3b-9237-f6df3fe6e5cf",
+		"name": "Crud_ApiTesting",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41652069"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json()\r",
+							"pm.environment.set(\"id\", jsonData.bookingid)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var fName = pm.variables.replaceIn(\"{{$randomFirstName}}\")\r",
+							"pm.environment.set(\"firstName\", fName)\r",
+							"\r",
+							"var lName = pm.environment.replaceIn(\"{{$randomLastName}}\")\r",
+							"pm.environment.set(\"lastName\", lName)\r",
+							"\r",
+							"var totalPrice = pm.variables.replaceIn(\"{{$randomInt}}\")\r",
+							"pm.environment.set(\"totalPrice\", totalPrice)\r",
+							"\r",
+							"var d_paid = pm.variables.replaceIn(\"{{$randomBoolean}}\")\r",
+							"pm.environment.set(\"d_paid\", d_paid)\r",
+							"\r",
+							"//Date\r",
+							"const moment = require('moment')\r",
+							"const today = moment()\r",
+							"var checkin = today.add(5, 'd').format(\"YYYY-MM-DD\")\r",
+							"pm.environment.set(\"checkin\", checkin)\r",
+							"var checkout = today.add(10, 'd').format(\"YYYY-MM-DD\")\r",
+							"pm.environment.set(\"checkout\", checkout)\r",
+							"//console.log(today.add(5, 'd').add(5, 'M').format(\"YYYY-MM-DD\"))\r",
+							"//console.log(today.subtract(5, 'd').format(\"YYYY-MM-DD\"))\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"firstname\" : \"{{firstName}}\",\r\n\t\"lastname\" : \"{{lastName}}\",\r\n\t\"totalprice\" : {{totalPrice}},\r\n\t\"depositpaid\" : {{d_paid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{checkin}}\",\r\n    \t\"checkout\" : \"{{checkout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"Breakfast\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/booking/",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"booking",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var statusCode = pm.response.code\r",
+							"if(statusCode==200){\r",
+							"    pm.test(\"Status code is 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"\r",
+							"    var jsonData = pm.response.json()\r",
+							"    pm.test(\"First name validation\", function (){\r",
+							"        pm.expect(jsonData.firstname).to.eql(pm.environment.get(\"firstName\"))\r",
+							"    })\r",
+							"    pm.test(\"Last name validation\", function (){\r",
+							"        pm.expect(jsonData.lastname).to.eql(pm.environment.get(\"lastName\"))\r",
+							"    })\r",
+							"    // pm.test(\"Total price validation\", function(){\r",
+							"    //     pm.expect(jsonData.totalprice).to.eql(parseInt(pm.environment.get(\"totalPrice\")))\r",
+							"    // })\r",
+							"    pm.test(\"Total price validation\", function(){\r",
+							"        pm.expect(jsonData.totalprice.toString()).to.eql(pm.environment.get(\"totalPrice\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Checkin date validation\", function(){\r",
+							"        pm.expect(jsonData.bookingdates.checkin).to.eql(pm.environment.get(\"checkin\"))\r",
+							"    })\r",
+							"}\r",
+							"else if(statusCode==404){\r",
+							"    pm.test(\"Not Found\")\r",
+							"}\r",
+							"else{\r",
+							"    pm.test(\"Something went wrong\")\r",
+							"}\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/booking/{{id}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Session Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"pm.environment.set(\"session_token\", jsonData.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"username\": \"admin\",\r\n\t\"password\": \"password123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/auth/",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"auth",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var fname = pm.variables.replaceIn(\"{{$randomFirstName}}\")\r",
+							"pm.environment.set(\"updatefirstName\", fname)\r",
+							"\r",
+							"var lname = pm.variables.replaceIn(\"{{$randomLastName}}\")\r",
+							"pm.environment.set(\"updatelastName\", lname)\r",
+							"var totalPrice = pm.variables.replaceIn(\"{{$randomInt}}\")\r",
+							"pm.environment.set(\"updatetotalPrice\", totalPrice)\r",
+							"\r",
+							"var d_paid = pm.variables.replaceIn(\"{{$randomBoolean}}\")\r",
+							"pm.environment.set(\"updated_paid\", d_paid)\r",
+							"\r",
+							"//Date\r",
+							"const moment = require('moment')\r",
+							"const today = moment()\r",
+							"\r",
+							"var checkin = today.add(5, 'd').format(\"YYYY-MM-DD\")\r",
+							"pm.environment.set(\"updatecheckin\", checkin)\r",
+							"var checkout = today.add(10, 'd').format(\"YYYY-MM-DD\")\r",
+							"pm.environment.set(\"updatecheckout\", checkout)\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{session_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"firstname\" : \"{{updatefirstName}}\",\r\n\t\"lastname\" : \"{{updatelastName}}\",\r\n\t\"totalprice\" : {{updatetotalPrice}},\r\n\t\"depositpaid\" : {{updated_paid}},\r\n\t\"bookingdates\" : {\r\n    \t\"checkin\" : \"{{updatecheckin}}\",\r\n    \t\"checkout\" : \"{{updatecheckout}}\"\r\n\t},\r\n\t\"additionalneeds\" : \"Dinner\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/booking/{{id}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "token={{session_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BaseUrl}}/booking/{{id}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify after update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var statusCode = pm.response.code\r",
+							"if(statusCode==200){\r",
+							"\r",
+							"    pm.test(\"Status code is 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"    var jsonData = pm.response.json()\r",
+							"\r",
+							"    pm.test(\"Updated first name validation\", function(){\r",
+							"        pm.expect(jsonData.firstname).to.eql(pm.environment.get(\"lastName\"))\r",
+							"    })\r",
+							"\r",
+							"    pm.test(\"Updated lastname validation\", function(){\r",
+							"        pm.expect(jsonData.lastname).to.eql(pm.environment.get(\"lastName\"))\r",
+							"    })\r",
+							"    pm.test(\"Total price validation after update\", function(){\r",
+							"        pm.expect(jsonData.totalprice.toString()).to.eql(pm.environment.get(\"totalPrice\"))\r",
+							"    })\r",
+							"}\r",
+							"else{\r",
+							"    pm.test(\"Something went wrong\")\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/booking/{{id}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"booking",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Array test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json()\r",
+							"//console.log(jsonData.length)\r",
+							"//console.log(jsonData[0].middle_name)\r",
+							"\r",
+							"let count = 0\r",
+							"for(i=0;i<jsonData.length;i++){\r",
+							"    if(jsonData[i].first_name==\"StudentTwo\"){\r",
+							"        console.log(jsonData[i].last_name)\r",
+							"        console.log(jsonData[i].date_of_birth)\r",
+							"        count = 1\r",
+							"    }\r",
+							"}\r",
+							"if(count ==0){\r",
+							"    console.log(\"Not found\")\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://thetestingworldapi.com/api/studentsDetails",
+					"protocol": "https",
+					"host": [
+						"thetestingworldapi",
+						"com"
+					],
+					"path": [
+						"api",
+						"studentsDetails"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
