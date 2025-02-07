@@ -11,6 +11,9 @@ This project showcases API testing with Postman, featuring a collection of tests
 - Pre-request scripts for dynamic data setup and test preparation
 - Automated test scripts for assertions, validations, and response verification
 
+# Postman API Documentation:
+- https://documenter.getpostman.com/view/41652069/2sAYX8Hg4W
+
 ### **Technology used:**
 - Postman
 - Newman
